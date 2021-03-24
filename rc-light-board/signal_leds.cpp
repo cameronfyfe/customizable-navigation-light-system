@@ -46,19 +46,19 @@ void SignalLEDs_Init()
 // Update LEDs (called on loop)
 void SignalLEDs_Update(const SignalLEDsConfig &signal_config)
 {
-  unsigned long ms = millis();
+  uint32_t ms = millis();
   
   // Strobe LED
-  unsigned long strobe_cycle_time = 0;
+  uint32_t strobe_cycle_time = 0;
   for (byte i=0; i<STROBE_TIMES_ARR_SIZE; i++)
   {
     strobe_cycle_time += signal_config.strobe.times.on[i];
     strobe_cycle_time += signal_config.strobe.times.off[i];
   }
-  unsigned long strobe_tc = ms % strobe_cycle_time;
+  uint32_t strobe_tc = ms % strobe_cycle_time;
 
   bool strobe_state = true;
-  unsigned long timer = 0;
+  uint32_t timer = 0;
   for (byte i=0; i<STROBE_TIMES_ARR_SIZE; i++)
   {
     timer += signal_config.strobe.times.on[i];
@@ -70,7 +70,7 @@ void SignalLEDs_Update(const SignalLEDsConfig &signal_config)
   LED_Set(STROBE, strobe_state && signal_config.strobe.enabled);
 
   // Beacon LED
-  unsigned long beacon_tc = ms % (signal_config.beacon.on_time + signal_config.beacon.off_time);
+  uint32_t beacon_tc = ms % (signal_config.beacon.on_time + signal_config.beacon.off_time);
   bool beacon_state = (beacon_tc < signal_config.beacon.on_time);
   
   LED_Set(BEACON, beacon_state && signal_config.beacon.enabled);

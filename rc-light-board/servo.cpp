@@ -44,7 +44,7 @@ class ServoSignal {
     // Call from pin change interrupt
     void Update()
     {
-      unsigned long us = micros();
+      uint32_t us = micros();
       
       bool cur_pin_state = PIND & bit(_pin);
       if (cur_pin_state && !_last_pin_state)
@@ -65,8 +65,8 @@ class ServoSignal {
     // Returns true if signal is active
     bool GetPulseWidth(uint16_t *pw)
     {
-      unsigned long us = micros();
-      unsigned long last_change = max(_last_rise_time, _last_fall_time);
+      uint32_t us = micros();
+      uint32_t last_change = max(_last_rise_time, _last_fall_time);
       
       // Return false if signal is inactive
       if (us - last_change > PWM_INACTIVE_TIMEOUT*1000)
@@ -82,8 +82,8 @@ class ServoSignal {
   private:
     const byte _pin;
     bool _last_pin_state;
-    unsigned long _last_fall_time;
-    unsigned long _last_rise_time;
+    uint32_t _last_fall_time;
+    uint32_t _last_rise_time;
     uint16_t _last_pw;
     uint16_t _last_period;
 };
