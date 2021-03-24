@@ -53,15 +53,27 @@ The board has 4 modes:
 | 4. Beacon Config Mode | Beacon configuration is adjustable form this mode.<br>While in this mode Beacon flashes according to config as it's adjusted.  All other outputs are OFF. |
 
 ### Normal Mode
-In Normal Mode, the LED outputs will be controlled by switch signals wired to the board.
+In Normal Mode, the LED outputs will be controlled by switch signals wired to the board.  If neither switch signal is wired then it's the same as being in Manual Mode.
 
-`TODO, table mapping switch positions to signal enable/disables as described in video or with other options for Aux2`
+| SW1 Position | Result                              |
+| ------------ | ----------------------------------- |
+| 0            | Strobe Disabled<br/>Beacon Disabled |
+| 1            | Strobe Enabled<br/>Beacon Disabled  |
+| 2            | Strobe Enabled<br/>Beacon Enabled   |
+| No Signal    | Strobe Enabled<br/>Beacon Enabled   |
+
+| SW2 Position | Result                |
+| ------------ | --------------------- |
+| 0            | AUX1 OFF<br/>AUX2 OFF |
+| 1            | AUX1 ON<br/>AUX2 OFF  |
+| 2            | AUX1 ON<br/>AUX2 ON   |
+| No Signal    | AUX1 ON<br/>AUX2 OFF  |
 
 - A short press (< 1 second) of Btn 1 will switch to Strobe Config Mode
 - A long press (>= second) of Btn 1 will switch to Manual Mode
 
 ### Manual Mode
-In Manual Mode, the Strobe, Beacon, and Aux 1 signals are all enabled and Aux 2 is disabled.  In this mode any RC switch signals wired to the board are ignored.
+In Manual Mode, the Strobe and Beacon are enabled, Aux 1 is ON, and Aux 2 is OFF.  In this mode any RC switch signals wired to the board are ignored.
 - A short press (< 1 second) of Btn 1 will switch to Strobe Config Mode
 - A long press (>= second) of Btn 1 will switch back to Normal Mode
 
@@ -84,6 +96,10 @@ After 60 seconds of inactivity in Beacon Config Mode, the board will switch to N
 
  - A short press (< 1 second) of Btn 2 will switch between selection of ON and OFF timing.
  - A long press (>= 1 second) of Btn 2 will enter timing adjustment mode for the currently selected time (ON or OFF).  While in timing adjustment mode, pressing Btn 2 again (short or long will return user back to the base Beacon Config Mode).
+
+### Saving
+ - At any point a short press (< 10 seconds) of Btn 3 will save the current device configuration to EEPROM.  All mode LEDs will do 3 quick flashes when settings are saved.
+ - At any point a long press (>= 10 seconds) of Btn 3 will revert the device to its default device settings.  All mode LEDs will do 3 slow flashes when device is reset.
 
 ### Mode LEDs
 Two mode LEDs (`MD1`, `MD2`) indicate what mode the board is currently in.
