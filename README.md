@@ -1,7 +1,31 @@
-
 # TODO: Title/Board/Product Name
 
-## Overview
+# Getting Started
+1. Install [Arduino IDE](https://www.arduino.cc/en/software)
+2. Open `rc-light-board/rc-light-board.ino` from Arduino IDE
+3. Select `Tools` -> `Board` -> `Arduino Uno`
+4. Plug board in
+5. Click `Upload` (Right arrow icon below toolbar) to flash code to ATMEGA328P
+
+# Pins
+| Name   | Type        | Arduino Pin | Chip Pin |
+| ------ | ----------- | ----------- | -------- |
+| POT    | analog in   | A0          | PC0      |
+| SW1    | pwm in      | 5           | PD5      |
+| SW2    | pwm in      | 6           | PD6      |
+| BTN1   | digital in  | 8           | PB0      |
+| BTN2   | digital in  | 9           | PB1      |
+| BTN3   | digital in  | 10          | PB2      |
+| STROBE | digital out | A1          | PC1      |
+| BEACON | digital out | A2          | PC2      |
+| AUX1   | digital out | A3          | PC3      |
+| AUX2   | digital out | A4          | PC4      |
+| MD1    | digital out | 12          | PB4      |
+| MD2    | digital out | 13          | PB5      |
+| PR1    | digital out | 2           | PD0      |
+| PR2    | digital out | 4           | PD2      |
+
+# Functional Overview
 The board has 4 output pins for external LEDs that can be configured in various modes/flashing sequences.
 | LED    | Description                                                                                            |
 | ------ | ------------------------------------------------------------------------------------------------------ |
@@ -18,8 +42,8 @@ The board has 3 buttons for selecting modes and 1 potentiometer/knob for adjusti
 | Btn 3 | Saves current configuration to EEPROM while in config mode             |
 | Pot   | Adjusts currently selected parameter in config mode                    |
 
-## Operation
-### Modes
+# Operation
+## Modes
 The board has 4 modes:
 | Mode                  | Description |
 | --------------------- | ----------- |
@@ -29,15 +53,27 @@ The board has 4 modes:
 | 4. Beacon Config Mode | Beacon configuration is adjustable form this mode.<br>While in this mode Beacon flashes according to config as it's adjusted.  All other outputs are OFF. |
 
 ### Normal Mode
-In Normal Mode, the LED outputs will be controlled by switch signals wired to the board.
+In Normal Mode, the LED outputs will be controlled by switch signals wired to the board.  If neither switch signal is wired then it's the same as being in Manual Mode.
 
-`TODO, table mapping switch positions to signal enable/disables as described in video or with other options for Aux2`
+| SW1 Position | Result                              |
+| ------------ | ----------------------------------- |
+| 0            | Strobe Disabled<br/>Beacon Disabled |
+| 1            | Strobe Enabled<br/>Beacon Disabled  |
+| 2            | Strobe Enabled<br/>Beacon Enabled   |
+| No Signal    | Strobe Enabled<br/>Beacon Enabled   |
+
+| SW2 Position | Result                |
+| ------------ | --------------------- |
+| 0            | AUX1 OFF<br/>AUX2 OFF |
+| 1            | AUX1 ON<br/>AUX2 OFF  |
+| 2            | AUX1 ON<br/>AUX2 ON   |
+| No Signal    | AUX1 ON<br/>AUX2 OFF  |
 
 - A short press (< 1 second) of Btn 1 will switch to Strobe Config Mode
 - A long press (>= second) of Btn 1 will switch to Manual Mode
 
 ### Manual Mode
-In Manual Mode, the Strobe, Beacon, and Aux 1 signals are all enabled and Aux 2 is disabled.  In this mode any RC switch signals wired to the board are ignored.
+In Manual Mode, the Strobe and Beacon are enabled, Aux 1 is ON, and Aux 2 is OFF.  In this mode any RC switch signals wired to the board are ignored.
 - A short press (< 1 second) of Btn 1 will switch to Strobe Config Mode
 - A long press (>= second) of Btn 1 will switch back to Normal Mode
 
@@ -61,7 +97,32 @@ After 60 seconds of inactivity in Beacon Config Mode, the board will switch to N
  - A short press (< 1 second) of Btn 2 will switch between selection of ON and OFF timing.
  - A long press (>= 1 second) of Btn 2 will enter timing adjustment mode for the currently selected time (ON or OFF).  While in timing adjustment mode, pressing Btn 2 again (short or long will return user back to the base Beacon Config Mode).
 
-### Hardcoded Config Parameters
+### Saving
+ - At any point a short press (< 10 seconds) of Btn 3 will save the current device configuration to EEPROM.  All mode LEDs will do 3 quick flashes when settings are saved.
+ - At any point a long press (>= 10 seconds) of Btn 3 will revert the device to its default device settings.  All mode LEDs will do 3 slow flashes when device is reset.
+
+### Mode LEDs
+Two mode LEDs (`MD1`, `MD2`) indicate what mode the board is currently in.
+| MD1 | MD2 | Mode          |
+| --- | --- | ------------- |
+| OFF | OFF | Normal Mode   |
+| ON  | ON  | Manual Mode   |
+| ON  | OFF | Strobe Config |
+| OFF | ON  | Beacon Config |
+
+Two parameter LEDs (`PR1`, `PR2`) indicate what parameter is currently selected for adjustment (if any).  This is only applicable in Strobe and Beacon Config modes
+| Mode          | PR1 | PR2 | Selected Parameter            |
+| ------------- | --- | --- | ----------------------------- |
+| Strobe Config | OFF | OFF | No parameter is selected      |
+| Strobe Config | ON  | OFF | Strobe pattern 1 spacing time |
+| Strobe Config | OFF | ON  | Strobe pattern 2 spacing time |
+| Strobe Config | ON  | ON  | Strobe pattern 3 spacing time |
+| Beacon Config | OFF | OFF | No parameter is selected      |
+| Beacon Config | ON  | OFF | Beacon pulse ON time          |
+| Beacon Config | OFF | ON  | Beacon Pulse OFF time         |
+| Beacon Config | ON  | ON  | NA                            |
+
+## Hardcoded Config Parameters
 | Parameter                 | Value | Unit |
 | ------------------------- | ----- | ---- |
 | STROBE_SPACE_TIME_MIN     | 100   | ms   |
