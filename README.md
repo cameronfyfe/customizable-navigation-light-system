@@ -1,6 +1,31 @@
 # TODO: Title/Board/Product Name
 
-# Overview
+# Getting Started
+1. Install [Arduino IDE](https://www.arduino.cc/en/software)
+2. Open `rc-light-board/rc-light-board.ino` from Arduino IDE
+3. Select `Tools` -> `Board` -> `Arduino Uno`
+4. Plug board in
+5. Click `Upload` (Right arrow icon below toolbar) to flash code to ATMEGA328P
+
+# Pins
+| Name   | Type        | Arduino Pin | Chip Pin |
+| ------ | ----------- | ----------- | -------- |
+| POT    | analog in   | A0          | PC0      |
+| SW1    | pwm in      | 5           | PD5      |
+| SW2    | pwm in      | 6           | PD6      |
+| BTN1   | digital in  | 8           | PB0      |
+| BTN2   | digital in  | 9           | PB1      |
+| BTN3   | digital in  | 10          | PB2      |
+| STROBE | digital out | A1          | PC1      |
+| BEACON | digital out | A2          | PC2      |
+| AUX1   | digital out | A3          | PC3      |
+| AUX2   | digital out | A4          | PC4      |
+| MD1    | digital out | 12          | PB4      |
+| MD2    | digital out | 13          | PB5      |
+| PR1    | digital out | 2           | PD0      |
+| PR2    | digital out | 4           | PD2      |
+
+# Functional Overview
 The board has 4 output pins for external LEDs that can be configured in various modes/flashing sequences.
 | LED    | Description                                                                                            |
 | ------ | ------------------------------------------------------------------------------------------------------ |
