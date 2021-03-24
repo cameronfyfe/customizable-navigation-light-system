@@ -12,7 +12,7 @@
 #define POT_PIN A0
 
 
-#define INACTIVITY_TIMEOUT (60*1000) // ms
+#define INACTIVITY_TIMEOUT 60000 // ms
 
 //#define PRINT_INPUTS
 
@@ -26,6 +26,7 @@ Mode _mode_last = _mode;
 Settings _settings;
 // Last button press time for inactivity timeout
 static uint32_t _last_button_activity = 0;
+static uint32_t _last_pot_activity = 0;
 
 
 /* ---------- Private Function Declarations ---------- */
@@ -67,7 +68,7 @@ void loop()
   /* ---------- Loop Start ---------- */
   
   // Loop start time
-  uint32_t loop_start = millis();
+  uint32_t ms = millis();
   
   // Update mode
   _mode_last = _mode;
@@ -94,6 +95,7 @@ void loop()
     // better scaling for adjusting lower end than with linear
     pot_val = raw * raw / 1023;
     raw_last = raw;
+    _last_pot_activity = ms;
   }
   
   // Buttons
@@ -103,13 +105,13 @@ void loop()
 #ifdef PRINT_INPUTS
   static uint32_t last_input_print = 0;
   const char *active[] = {"INACTIVE","ACTIVE"};
-  if (loop_start - last_input_print > 1000)
+  if (ms - last_input_print > 1000)
   {
     Debug_Msg("=== Inputs ===");
     Debug_Msg("SW1: %s, %u", active[sw1_active], sw1_pos);
     Debug_Msg("SW2: %s, %u", active[sw2_active], sw2_pos);
     Debug_Msg("POT: raw: %u, sqr: %u (0-1023)", (uint16_t)raw, (uint16_t)pot_val);
-    last_input_print = loop_start;
+    last_input_print = ms;
   }
 #endif
 
@@ -159,17 +161,15 @@ void loop()
   
   // Handle Button Events
   if (btn_evt != NO_EVENT) {
-    HandleButtonEvent(btn_evt, loop_start);
+    HandleButtonEvent(btn_evt, ms);
   }
 
   // Handle Inactivity
-  if (loop_start - _last_button_activity > INACTIVITY_TIMEOUT)
+  if (ms - max(_last_button_activity, _last_pot_activity) > INACTIVITY_TIMEOUT)
   {
     if (_mode != MODE_MANUAL)
     {
       Debug_Msg("INACTIVITY: going to normal mode.");
-      Debug_Msg("%u", loop_start);
-      Debug_Msg("%u", _last_button_activity);
       _mode_next = MODE_NORMAL;
     }
   }
@@ -184,7 +184,7 @@ void loop()
   SignalLEDs_Update({
     .strobe = {
       .enabled = (
-           (_mode == MODE_NORMAL && sw1_pos >= 1)
+           (_mode == MODE_NORMAL && (sw1_pos >= 1 || !sw1_active))
         || (_mode == MODE_MANUAL)
         || (_mode >= MODE_STROBE && _mode < MODE_STROBE + 100)
        ),
@@ -192,7 +192,7 @@ void loop()
     },
     .beacon = {
       .enabled = (
-           (_mode == MODE_NORMAL && sw1_pos == 2)
+           (_mode == MODE_NORMAL && (sw1_pos == 2 || !sw1_active))
         || (_mode == MODE_MANUAL)
         || (_mode >= MODE_BEACON && _mode < MODE_BEACON + 100)
        ),
@@ -200,11 +200,11 @@ void loop()
       .off_time = _settings.beacon.off_time,
     },
     .aux1_on = (
-         (_mode == MODE_NORMAL && sw2_pos >= 1)
+         (_mode == MODE_NORMAL && (sw2_pos >= 1 || !sw2_active))
       || (_mode == MODE_MANUAL)
     ),
     .aux2_on = (
-         (_mode == MODE_NORMAL && sw2_pos == 2)
+         (_mode == MODE_NORMAL && sw2_active && sw2_pos == 2)
     )
   });
 
@@ -213,7 +213,7 @@ void loop()
 
   // Delay until next cycle
   const uint8_t cycle_time_ms = 5;
-  uint32_t this_loop_time = millis() - loop_start;
+  uint32_t this_loop_time = millis() - ms;
   if (this_loop_time < cycle_time_ms)
   {
     delay(cycle_time_ms - this_loop_time);
