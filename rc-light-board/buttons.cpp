@@ -5,20 +5,15 @@
 
 // Pin Definitions
 // button pins need to stay in D8-D13 otherwise pci scheme also needs to be updated (see PCI setup code and ISRs)
-#define BTN_1_PIN     8
-#define BTN_1_REG_BIT 0
-
-#define BTN_2_PIN     9
-#define BTN_2_REG_BIT 1
-
-#define BTN_3_PIN     10
-#define BTN_3_REG_BIT 2
+#define BTN_1     8
+#define BTN_2     9
+#define BTN_3     10
 
 
 // Config
-#define BTN1_LONG_HOLD 1000 // ms
-#define BTN2_LONG_HOLD 1000 // ms
-#define BTN3_LONG_HOLD 1000 // ms
+#define BTN1_LONG_HOLD 1000  // ms
+#define BTN2_LONG_HOLD 1000  // ms
+#define BTN3_LONG_HOLD 10000 // ms
 
 
 // Button event buffer
@@ -42,12 +37,15 @@ class Button {
     _hold_time(hold_time),
     _t_debounce(t_debounce)
     {
-      _last_fall_time = 0;
     }
 
     // Initialize button pin config
     void Init()
     {
+      _last_press_time = 0;
+      _last_pin_change = 0;
+      _long_hold = false;
+      
       pinMode(_pin, INPUT_PULLUP);
       _pin_state = digitalRead(_pin);
       
@@ -68,25 +66,45 @@ class Button {
         return;
       }
 
-      bool new_pin_state = digitalRead(_pin);   
+      bool new_pin_state = digitalRead(_pin);  
+
+      // If button is being held
+      if (!new_pin_state && !_pin_state)
+      {
+        // Send Long Hold Evt when button has been held past 'long' time
+        if (ms - _last_press_time >= _hold_time && !_long_hold)
+        {
+          Buttons_SendEvent(_long_evt);
+          _long_hold = true;
+        }
+      }
+      
+      // If button has a rising or falling edge
       if (new_pin_state != _pin_state)
       {
         if (new_pin_state)
         {
           // Rising Edge (RELEASE)
-          uint32_t hold_time = ms - _last_fall_time;
-          Buttons_SendEvent(hold_time < _hold_time ? _short_evt : _long_evt);
+          if (!_long_hold)
+          {
+            // Send Short Hold Evt if held for less than 'long' time
+            Buttons_SendEvent(_short_evt);
+          }
+          // Reset long hold tracker on release
+          _long_hold = false;
         }
         else
         {
           // Falling Edge (PRESS)
-          _last_fall_time = ms;
+          _last_press_time = ms;
         }
         
-        // Update pin state
-        _pin_state = new_pin_state;
+        // Update last pin change time
         _last_pin_change = ms;
-      }      
+      }
+
+      // Update pin state
+      _pin_state = new_pin_state;
     }
     
   private:
@@ -97,7 +115,8 @@ class Button {
     const uint32_t _t_debounce;   // debounce time
     
     bool _pin_state;           // hold pin state
-    uint32_t _last_fall_time;  // hold time of last falling edge (button press)
+    bool _long_hold;           // button is in long hold
+    uint32_t _last_press_time; // hold time of last falling edge (button press)
     uint32_t _last_pin_change; // hold time of last pin change
 };
 
@@ -105,9 +124,9 @@ class Button {
 // Buttons Array
 #define NUM_BTNS (sizeof(btns)/sizeof(Button))
 Button btns[] = {
-  Button(BTN_1_PIN, BTN_1_SHORT, BTN_1_LONG, BTN1_LONG_HOLD),
-  Button(BTN_2_PIN, BTN_2_SHORT, BTN_2_LONG, BTN2_LONG_HOLD),
-  Button(BTN_3_PIN, BTN_3_SHORT, BTN_3_LONG, BTN3_LONG_HOLD)
+  Button(BTN_1, BTN_1_SHORT, BTN_1_LONG, BTN1_LONG_HOLD),
+  Button(BTN_2, BTN_2_SHORT, BTN_2_LONG, BTN2_LONG_HOLD),
+  Button(BTN_3, BTN_3_SHORT, BTN_3_LONG, BTN3_LONG_HOLD)
 };
 
 
@@ -116,10 +135,7 @@ Button btns[] = {
 // Port B (D8-D13) Pin Change Interrupt
 ISR (PCINT0_vect)
 {
-  for (uint8_t i=0; i<NUM_BTNS; i++)
-  {
-    btns[i].Update();
-  }
+  Buttons_Update();
 }
 
 
@@ -132,6 +148,16 @@ void Buttons_Init()
   for (uint8_t i=0; i<NUM_BTNS; i++)
   {
     btns[i].Init();
+  }
+}
+
+
+// Update Button statuses
+void Buttons_Update()
+{
+  for (uint8_t i=0; i<NUM_BTNS; i++)
+  {
+    btns[i].Update();
   }
 }
 

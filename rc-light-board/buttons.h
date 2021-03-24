@@ -20,6 +20,7 @@ enum ButtonEvent {
 
 /* ---------- Public Function Declarations ---------- */
 void Buttons_Init();
+void Buttons_Update();
 ButtonEvent Buttons_GetEvent();
 
 
