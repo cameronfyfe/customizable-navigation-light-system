@@ -14,7 +14,7 @@
 
 #define INACTIVITY_TIMEOUT 60*1000 // ms
 
-#define PRINT_INPUTS
+//#define PRINT_INPUTS
 
 
 /* ---------- Global variables ---------- */
@@ -67,7 +67,7 @@ void loop()
   /* ---------- Loop Start ---------- */
   
   // Loop start time
-  unsigned long loop_start = millis();
+  uint32_t loop_start = millis();
   
   // Update mode
   _mode_last = _mode;
@@ -209,7 +209,7 @@ void loop()
 
   // Delay until next cycle
   const uint8_t cycle_time_ms = 5;
-  unsigned long this_loop_time = millis() - loop_start;
+  uint32_t this_loop_time = millis() - loop_start;
   if (this_loop_time < cycle_time_ms)
   {
     delay(cycle_time_ms - this_loop_time);
