@@ -7,7 +7,7 @@
 
 
 #ifndef DEBUG_LEVEL
-#define DEBUG_LEVEL 3 // 0=disabled, 1=errors only, 2=normal, 3=verbose
+#define DEBUG_LEVEL 0 // 0=disabled, 1=errors only, 2=normal, 3=verbose
 #endif
 
 
