@@ -85,3 +85,12 @@ void ModeLEDs_Set(Mode mode)
     else                                          { PR_Set(0, 0); }
   }
 }
+
+
+// Set all mode LEDs
+// used to override normal display
+void ModeLEDs_SetAll(bool on)
+{
+  MD_Set(on, on);
+  PR_Set(on, on);
+}

@@ -28,6 +28,7 @@ enum Mode {
 /* ---------- Public Function Declarations ---------- */
 void ModeLEDs_Init();
 void ModeLEDs_Set(Mode mode);
+void ModeLEDs_SetAll(bool on);
 
 
 #endif
