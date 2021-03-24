@@ -12,7 +12,7 @@
 #define POT_PIN A0
 
 
-#define INACTIVITY_TIMEOUT 60*1000 // ms
+#define INACTIVITY_TIMEOUT (60*1000) // ms
 
 //#define PRINT_INPUTS
 
@@ -32,7 +32,7 @@ static uint32_t _last_button_activity = 0;
 void HandleButton1(bool long_press=false);
 void HandleButton2(bool long_press=false);
 void HandleButton3(bool long_press=false);
-void HandleButtonEvent(ButtonEvent evt);
+void HandleButtonEvent(ButtonEvent evt, uint32_t ms);
 uint16_t ScaledParam(uint16_t raw, uint16_t pmin, uint16_t pmax);
 
 
@@ -96,7 +96,8 @@ void loop()
     raw_last = raw;
   }
   
-  // Button Event
+  // Buttons
+  Buttons_Update(); // this is called here in addition to from pin change interrupts in order to not wait for btn release to trigger long hold presses
   ButtonEvent btn_evt = Buttons_GetEvent();
 
 #ifdef PRINT_INPUTS
@@ -158,7 +159,7 @@ void loop()
   
   // Handle Button Events
   if (btn_evt != NO_EVENT) {
-    HandleButtonEvent(btn_evt);
+    HandleButtonEvent(btn_evt, loop_start);
   }
 
   // Handle Inactivity
@@ -166,6 +167,9 @@ void loop()
   {
     if (_mode != MODE_MANUAL)
     {
+      Debug_Msg("INACTIVITY: going to normal mode.");
+      Debug_Msg("%u", loop_start);
+      Debug_Msg("%u", _last_button_activity);
       _mode_next = MODE_NORMAL;
     }
   }
@@ -218,9 +222,9 @@ void loop()
 
 
 // Handle Buttopn Event
-void HandleButtonEvent(ButtonEvent evt)
+void HandleButtonEvent(ButtonEvent evt, uint32_t ms)
 {
-  _last_button_activity = millis();
+  _last_button_activity = ms;
 
   Debug_Verbose("button event: %d", evt);
   
@@ -327,7 +331,25 @@ void HandleButton2(bool long_press)
 // Handle Button 3 Press
 void HandleButton3(bool long_press)
 {
-  Settings_Save(_settings);
+  if (long_press)
+  {
+    Settings_RevertToDefault();
+    _settings = Settings_Load();
+    for (uint8_t i=1; i<=6; i++)
+    {
+      delay(1000);
+      ModeLEDs_SetAll(i%2);
+    }
+  }
+  else
+  {
+    Settings_Save(_settings);
+    for (uint8_t i=1; i<=6; i++)
+    {
+      delay(100);
+      ModeLEDs_SetAll(i%2);
+    }
+  }
 }
 
 
