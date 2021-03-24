@@ -1,7 +1,6 @@
-
 # TODO: Title/Board/Product Name
 
-## Overview
+# Overview
 The board has 4 output pins for external LEDs that can be configured in various modes/flashing sequences.
 | LED    | Description                                                                                            |
 | ------ | ------------------------------------------------------------------------------------------------------ |
@@ -18,8 +17,8 @@ The board has 3 buttons for selecting modes and 1 potentiometer/knob for adjusti
 | Btn 3 | Saves current configuration to EEPROM while in config mode             |
 | Pot   | Adjusts currently selected parameter in config mode                    |
 
-## Operation
-### Modes
+# Operation
+## Modes
 The board has 4 modes:
 | Mode                  | Description |
 | --------------------- | ----------- |
@@ -61,7 +60,28 @@ After 60 seconds of inactivity in Beacon Config Mode, the board will switch to N
  - A short press (< 1 second) of Btn 2 will switch between selection of ON and OFF timing.
  - A long press (>= 1 second) of Btn 2 will enter timing adjustment mode for the currently selected time (ON or OFF).  While in timing adjustment mode, pressing Btn 2 again (short or long will return user back to the base Beacon Config Mode).
 
-### Hardcoded Config Parameters
+### Mode LEDs
+Two mode LEDs (`MD1`, `MD2`) indicate what mode the board is currently in.
+| MD1 | MD2 | Mode          |
+| --- | --- | ------------- |
+| OFF | OFF | Normal Mode   |
+| ON  | ON  | Manual Mode   |
+| ON  | OFF | Strobe Config |
+| OFF | ON  | Beacon Config |
+
+Two parameter LEDs (`PR1`, `PR2`) indicate what parameter is currently selected for adjustment (if any).  This is only applicable in Strobe and Beacon Config modes
+| Mode          | PR1 | PR2 | Selected Parameter            |
+| ------------- | --- | --- | ----------------------------- |
+| Strobe Config | OFF | OFF | No parameter is selected      |
+| Strobe Config | ON  | OFF | Strobe pattern 1 spacing time |
+| Strobe Config | OFF | ON  | Strobe pattern 2 spacing time |
+| Strobe Config | ON  | ON  | Strobe pattern 3 spacing time |
+| Beacon Config | OFF | OFF | No parameter is selected      |
+| Beacon Config | ON  | OFF | Beacon pulse ON time          |
+| Beacon Config | OFF | ON  | Beacon Pulse OFF time         |
+| Beacon Config | ON  | ON  | NA                            |
+
+## Hardcoded Config Parameters
 | Parameter                 | Value | Unit |
 | ------------------------- | ----- | ---- |
 | STROBE_SPACE_TIME_MIN     | 100   | ms   |
