@@ -3,6 +3,18 @@
 #include <EEPROM.h>
 
 
+#define DEFAULT_SETTINGS {                  \
+  .strobe = {                               \
+    .pattern = 0,                           \
+    .spacing = STROBE_SPACE_TIME_DEFAULT    \
+  },                                        \  
+  .beacon = {                               \
+    .on_time = BEACON_ON_TIME_DEFAULT,      \
+    .off_time = BEACON_OFF_TIME_DEFAULT     \
+  }                                         \
+}
+
+
 /* ---------- Private Function Declarations ---------- */
 uint16_t crc16(uint8_t *data, uint16_t len);
 uint16_t GetCRC(const Settings &setting);
@@ -25,16 +37,7 @@ Settings Settings_Load()
   {
     Debug_Error("Bad CRC, using default settings.", settings.crc);
     // Default settings
-    settings = {
-      .strobe = {
-        .pattern = 0,
-        .spacing = STROBE_SPACE_TIME_DEFAULT
-      },
-      .beacon = {
-        .on_time = BEACON_ON_TIME_DEFAULT,
-        .off_time = BEACON_OFF_TIME_DEFAULT
-      }
-    };
+    settings = DEFAULT_SETTINGS;
     settings.crc = GetCRC(settings);
   }
 
@@ -50,6 +53,14 @@ void Settings_Save(Settings &settings)
   Debug_Msg("Saving settings (crc: %u)", settings.crc);
 
   EEPROM.put(0, settings);
+}
+
+
+// Rever to default settings
+void Settings_RevertToDefault()
+{
+  Settings settings = DEFAULT_SETTINGS;
+  Settings_Save(settings);
 }
 
 

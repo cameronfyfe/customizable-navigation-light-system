@@ -43,6 +43,7 @@ struct __attribute__((__packed__ )) Settings
 /* ---------- Public Function Declarations ---------- */
 Settings Settings_Load();
 void Settings_Save(Settings &settings);
+void Settings_RevertToDefault();
 
 
 #endif
