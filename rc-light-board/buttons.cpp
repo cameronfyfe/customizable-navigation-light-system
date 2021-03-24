@@ -39,7 +39,8 @@ class Button {
     _pin(pin),
     _short_evt(short_evt),
     _long_evt(long_evt),
-    _hold_time(hold_time)
+    _hold_time(hold_time),
+    _t_debounce(t_debounce)
     {
       _last_fall_time = 0;
     }
@@ -61,26 +62,27 @@ class Button {
     {
       uint32_t ms = millis();
 
-      bool new_pin_state = digitalRead(_pin);
-      
+      // Debounce
+      if (ms - _last_pin_change < _t_debounce)
+      {
+        return;
+      }
+
+      bool new_pin_state = digitalRead(_pin);   
       if (new_pin_state != _pin_state)
       {
-        // Debounce
-        if (ms - _last_pin_change < _t_debounce)
-        {
-          return;
-        }
-        // Rising Edge (RELEASE)
         if (new_pin_state)
         {
+          // Rising Edge (RELEASE)
           uint32_t hold_time = ms - _last_fall_time;
           Buttons_SendEvent(hold_time < _hold_time ? _short_evt : _long_evt);
         }
-        // Falling Edge (PRESS)
         else
         {
+          // Falling Edge (PRESS)
           _last_fall_time = ms;
         }
+        
         // Update pin state
         _pin_state = new_pin_state;
         _last_pin_change = ms;
