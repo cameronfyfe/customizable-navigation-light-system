@@ -36,6 +36,7 @@ struct __attribute__((__packed__ )) Settings
 {
   StrobeSettings strobe;
   BeaconSettings beacon;
+  bool manual_mode;
   uint16_t crc;
 };
 
