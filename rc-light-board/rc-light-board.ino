@@ -14,6 +14,13 @@
 
 #define INACTIVITY_TIMEOUT 60000 // ms
 
+
+#define SIGNAL_SW 1
+#define AUX_SW 2
+
+//#define SW1_FUNCTION SIGNAL_SW
+#define SW1_FUNCTION AUX_SW
+
 //#define PRINT_INPUTS
 
 
@@ -180,11 +187,25 @@ void loop()
   // Mode LEDs
   ModeLEDs_Set(_mode);
 
+  // Switches
+#if SW1_FUNCTION == SIGNAL_SW
+  const uint8_t signal_sw_pos = sw1_pos;
+  const bool signal_sw_active = sw1_active;
+  const uint8_t aux_sw_pos = sw2_pos;
+  const bool aux_sw_active = sw2_active;
+#endif
+#if SW1_FUNCTION == AUX_SW
+  const uint8_t signal_sw_pos = sw2_pos;
+  const bool signal_sw_active = sw2_active;
+  const uint8_t aux_sw_pos = sw1_pos;
+  const bool aux_sw_active = sw1_active;
+#endif
+
   // Signal LEDs 
   SignalLEDs_Update({
     .strobe = {
       .enabled = (
-           (_mode == MODE_NORMAL && (sw1_pos >= 1 || !sw1_active))
+           (_mode == MODE_NORMAL && (signal_sw_pos >= 1 || !signal_sw_active))
         || (_mode == MODE_MANUAL)
         || (_mode >= MODE_STROBE && _mode < MODE_STROBE + 100)
        ),
@@ -192,7 +213,7 @@ void loop()
     },
     .beacon = {
       .enabled = (
-           (_mode == MODE_NORMAL && (sw1_pos == 2 || !sw1_active))
+           (_mode == MODE_NORMAL && (signal_sw_pos == 2 || !signal_sw_active))
         || (_mode == MODE_MANUAL)
         || (_mode >= MODE_BEACON && _mode < MODE_BEACON + 100)
        ),
@@ -200,11 +221,11 @@ void loop()
       .off_time = _settings.beacon.off_time,
     },
     .aux1_on = (
-         (_mode == MODE_NORMAL && (sw2_pos >= 1 || !sw2_active))
+         (_mode == MODE_NORMAL && (aux_sw_pos >= 1 || !aux_sw_active))
       || (_mode == MODE_MANUAL)
     ),
     .aux2_on = (
-         (_mode == MODE_NORMAL && sw2_active && sw2_pos == 2)
+         (_mode == MODE_NORMAL && aux_sw_active && aux_sw_pos == 2)
     )
   });
 
