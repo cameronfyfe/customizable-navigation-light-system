@@ -44,10 +44,10 @@ static StrobeTimes StrobePattern(byte i, uint16_t spacing)
   StrobeTimes t;
   switch (i)
   {
-    case 2:  return { .on = {150, 150, 150}, .off = {150, 800, spacing} };
-    case 1:  return { .on = {150, 150, 150}, .off = {150, 150, spacing} };
+    case 2:  return { .on = {50, 50, 50}, .off = {250, 900, spacing} };
+    case 1:  return { .on = {50, 50, 50}, .off = {250, 250, spacing} };
     case 0:
-    default: return { .on = {150, 150,   0}, .off = {150, spacing, 0} };
+    default: return { .on = {50, 50,   0}, .off = {250, spacing, 0} };
   }
 }
 
