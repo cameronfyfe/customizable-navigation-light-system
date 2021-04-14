@@ -133,7 +133,7 @@ void loop()
       _settings.manual_mode = false;
       break;
     case MODE_MANUAL:
-    _settings.manual_mode = true;
+      _settings.manual_mode = true;
       break;
     case MODE_STROBE:
       _mode_next = MODE_STROBE_PATTERN_1;
