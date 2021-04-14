@@ -131,7 +131,17 @@ bool Servo_GetPositionSW1(uint8_t *sw_pos)
 // Get current Switch 2 position
 bool Servo_GetPositionSW2(uint8_t *sw_pos)
 {
-  return Servo_GetPositionSW(1, sw_pos);
+  // Invert positions on SW2
+  uint8_t sw_pos_raw = 0;
+  bool ret = Servo_GetPositionSW(1, &sw_pos_raw);
+  switch (sw_pos_raw)
+  {
+    case 0: *sw_pos = 2; break;
+    case 1: *sw_pos = 1; break;
+    case 2:
+    default: *sw_pos = 0; break;
+  }
+  return ret;
 }
 
 
