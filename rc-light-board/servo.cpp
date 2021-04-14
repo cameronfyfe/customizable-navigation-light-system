@@ -15,7 +15,7 @@
 
 
 /* ---------- Private Function Declarations ---------- */
-bool Servo_GetPositionSW(uint8_t i, uint8_t *sw_pos);
+bool Servo_GetPositionSW(uint8_t i, uint8_t *sw_pos, bool invert=false);
 
 
 /* ---------- Servo Signal Class ---------- */
@@ -131,17 +131,7 @@ bool Servo_GetPositionSW1(uint8_t *sw_pos)
 // Get current Switch 2 position
 bool Servo_GetPositionSW2(uint8_t *sw_pos)
 {
-  // Invert positions on SW2
-  uint8_t sw_pos_raw = 0;
-  bool ret = Servo_GetPositionSW(1, &sw_pos_raw);
-  switch (sw_pos_raw)
-  {
-    case 0: *sw_pos = 2; break;
-    case 1: *sw_pos = 1; break;
-    case 2:
-    default: *sw_pos = 0; break;
-  }
-  return ret;
+  return Servo_GetPositionSW(1, sw_pos, true);
 }
 
 
@@ -162,7 +152,7 @@ bool Servo_GetSignal2(uint16_t *pulse_width)
 /* ---------- Private Function Definitions ---------- */
 
 // Get current switch position
-bool Servo_GetPositionSW(uint8_t i, uint8_t *sw_pos)
+bool Servo_GetPositionSW(uint8_t i, uint8_t *sw_pos, bool invert)
 {
   uint16_t pw = 0;
   bool signal_active = pwm[i].GetPulseWidth(&pw);
@@ -172,5 +162,10 @@ bool Servo_GetPositionSW(uint8_t i, uint8_t *sw_pos)
   }
 
   *sw_pos = (pw < SW_MIDDLE_POSITION_MIN) ? 0 : (pw <= SW_MIDDLE_POSITION_MAX) ? 1 : 2;
+  if (invert)
+  {
+    *sw_pos = 2 - *sw_pos;
+  }
+  
   return true;
 }
