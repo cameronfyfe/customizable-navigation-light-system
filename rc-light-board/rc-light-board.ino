@@ -52,6 +52,9 @@ void setup()
   
   Debug_Msg("Loading Settings...");
   _settings = Settings_Load();
+
+  // Initial mode
+  _mode = _settings.manual_mode ? MODE_MANUAL : MODE_NORMAL;
   
   Debug_Msg("Buttons Init...");
   Buttons_Init();
@@ -127,8 +130,10 @@ void loop()
   switch (_mode)
   {
     case MODE_NORMAL:
+      _settings.manual_mode = false;
       break;
     case MODE_MANUAL:
+    _settings.manual_mode = true;
       break;
     case MODE_STROBE:
       _mode_next = MODE_STROBE_PATTERN_1;
