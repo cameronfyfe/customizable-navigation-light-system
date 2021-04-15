@@ -46,32 +46,51 @@ void SignalLEDs_Init()
 // Update LEDs (called on loop)
 void SignalLEDs_Update(const SignalLEDsConfig &signal_config)
 {
+  static uint32_t ms_last = millis();
   uint32_t ms = millis();
+  uint32_t d_ms = ms - ms_last;
   
   // Strobe LED
-  uint32_t strobe_cycle_time = 0;
-  for (byte i=0; i<STROBE_TIMES_ARR_SIZE; i++)
-  {
-    strobe_cycle_time += signal_config.strobe.times.on[i];
-    strobe_cycle_time += signal_config.strobe.times.off[i];
-  }
-  uint32_t strobe_tc = ms % strobe_cycle_time;
+  static uint8_t strobe_i = 0;
+  static bool strobe_state = false;
+  static int32_t strobe_time_left = 0;
 
-  bool strobe_state = true;
-  uint32_t timer = 0;
-  for (byte i=0; i<STROBE_TIMES_ARR_SIZE; i++)
+  strobe_time_left -= d_ms;
+  
+  if (strobe_time_left <= 0)
   {
-    timer += signal_config.strobe.times.on[i];
-    if (strobe_tc >= timer) { strobe_state = false; }
-    timer += signal_config.strobe.times.off[i];
-    if (strobe_tc >= timer) { strobe_state = true; }
+    strobe_state = !strobe_state;
+    if (strobe_state)
+    {
+      strobe_i = (strobe_i + 1) % STROBE_TIMES_ARR_SIZE;
+      strobe_time_left = signal_config.strobe.times.on[strobe_i];
+    }
+    else
+    {
+      strobe_time_left = signal_config.strobe.times.off[strobe_i];
+    }
   }
 
   LED_Set(STROBE, strobe_state && signal_config.strobe.enabled);
 
   // Beacon LED
-  uint32_t beacon_tc = ms % (signal_config.beacon.on_time + signal_config.beacon.off_time);
-  bool beacon_state = (beacon_tc < signal_config.beacon.on_time);
+  static bool beacon_state = false;
+  static int32_t beacon_time_left = 0;
+
+  beacon_time_left -= d_ms;
+
+  if (beacon_time_left <= 0)
+  {
+    beacon_state = !beacon_state;
+    if (beacon_state)
+    {
+      beacon_time_left = signal_config.beacon.on_time;
+    }
+    else
+    {
+      beacon_time_left = signal_config.beacon.off_time;
+    }
+  }
   
   LED_Set(BEACON, beacon_state && signal_config.beacon.enabled);
 
@@ -81,4 +100,7 @@ void SignalLEDs_Update(const SignalLEDsConfig &signal_config)
   
   // AUX2 LED
   LED_Set(AUX2, signal_config.aux2_on);
+
+  // Track time
+  ms_last = ms;
 }

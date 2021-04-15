@@ -27,8 +27,8 @@
 /* ---------- Global variables ---------- */
 // Mode for state machine
 Mode _mode = MODE_NORMAL;
-Mode _mode_next = _mode;
-Mode _mode_last = _mode;
+Mode _mode_next = MODE_NORMAL;
+Mode _mode_last = MODE_NORMAL;
 // Device settings
 Settings _settings;
 // Last button press time for inactivity timeout
@@ -54,8 +54,8 @@ void setup()
   _settings = Settings_Load();
 
   // Initial mode
-  _mode = _settings.manual_mode ? MODE_MANUAL : MODE_NORMAL;
-  
+  _mode_next = _mode = _mode_last = _settings.manual_mode ? MODE_MANUAL : MODE_NORMAL;
+
   Debug_Msg("Buttons Init...");
   Buttons_Init();
   
